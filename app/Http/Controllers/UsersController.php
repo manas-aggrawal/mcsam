@@ -7,11 +7,15 @@ use Illuminate\Http\Request;
 
 class UsersController extends Controller
 {
-    
+
     private $usersModel;
 
-    public function __getUsersModel() {
-        if($this->usersModel == null) {
+    /**
+     * @return Users
+     */
+    public function __getUsersModel()
+    {
+        if ($this->usersModel == null) {
             $this->userModel = new Users();
         }
         return $this->userModel;
@@ -32,38 +36,49 @@ class UsersController extends Controller
         return $user;
     }
 
-    public function registerUser(Request $request) {
+    /**
+     * Method to register users in DB
+     * @param Request $request
+     * @return Response
+     */
+    public function registerUser(Request $request)
+    {
 
         $user = $this->__getUsersModel()->registerUser($request);
 
-        if(!empty($user)){
+        if (!empty($user)) {
             return response()->json([
-                'status'    =>  200,
-                'message'   =>  'User registered successfully!',
-                'data'      =>  $user,
+                'status' => 200,
+                'message' => 'User registered successfully!',
+                'data' => $user[0],
+            ]);
+        } else {
+            return response()->json([
+                'status' => 400,
+                'message' => 'User not registered!',
             ]);
         }
-        else {
-            return response()->json([
-                'status'    =>  400,
-                'message'   =>  'User not registered!',
-            ]);
-        }
-        
+
     }
 
-    public function loginUser(Request $request){
+    /**
+     * Method for user login.
+     * @param Request $request
+     * @return Response
+     */
+    public function loginUser(Request $request)
+    {
         $user = $this->__getUsersModel()->loginUser($request);
-        if(!empty($user)){
+        if (!empty($user)) {
             return response()->json([
-                'status'    =>  200,
-                'message'   =>  'User login success!',
-                'data'      =>   $user[0],
+                'status' => 200,
+                'message' => 'User login success!',
+                'data' => $user[0],
             ]);
-        }else{
+        } else {
             return response()->json([
-                'status'    =>  400,
-                'message'   =>  'User login failed!',
+                'status' => 400,
+                'message' => 'User login failed!',
             ]);
         }
     }

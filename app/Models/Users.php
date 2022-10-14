@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
-use Carbon\Carbon;
 use App\Models\CommonModel;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Hash;
 
 class Users extends Model
 {
@@ -18,6 +18,9 @@ class Users extends Model
 
     private $commonModel;
 
+    /**
+     * @return CommonModel
+     */
     public function __getCommonModel()
     {
         if ($this->commonModel === null) {
@@ -26,6 +29,11 @@ class Users extends Model
         return $this->commonModel;
     }
 
+    /**
+     * Method to register users in DB
+     * @param Request $request
+     * @return Array
+     */
     public function registerUser($request)
     {
 
@@ -56,36 +64,41 @@ class Users extends Model
             array_push($array, [
                 "email" => $email,
                 "name" => $name,
-                "password"  =>  $password,
+                "password" => $password,
                 'created_at' => $created_time,
                 'api_token' => $token,
             ]);
 
             Users::insert($array);
             $user = Users::select('*')->where('email', $request->input('email'))->get()->toArray();
-            return $user[0];
-        }else {
+            return $user;
+        } else {
             return [];
         }
     }
 
-    public function loginUser($request){
+    /**
+     * Method for user login.
+     * @param Request $request
+     * @return Array
+     */
+    public function loginUser($request)
+    {
         $email = $request->input('email');
         $password = $request->input('password');
 
         $pwd = Users::select('password')->where('email', $email)->get();
 
-        if(!$pwd->isEmpty() && Hash::check($request->input('password'), $pwd[0]->password)){
+        if (!$pwd->isEmpty() && Hash::check($request->input('password'), $pwd[0]->password)) {
             $token = $this->__getCommonModel()->createToken();
             Users::where('email', $email)->update([
                 'api_token' => $token,
             ]);
 
             return Users::select('*')->where('email', $email)->get()->toArray();
-        }else{
+        } else {
             return [];
         }
     }
 
-    
 }
